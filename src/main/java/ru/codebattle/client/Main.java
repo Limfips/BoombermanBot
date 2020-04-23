@@ -13,11 +13,13 @@ public class Main {
 
     public static void main(String[] args) throws URISyntaxException, IOException {
         CodeBattleClient client = new CodeBattleClient(SERVER_ADDRESS);
+        int i = 0;
         client.run(gameBoard -> {
             var random = new Random(System.currentTimeMillis());
             var direction = Direction.values()[random.nextInt(Direction.values().length)];
             var act = random.nextInt() % 2 == 0;
             return new TurnAction(act, direction);
+            ////sdgsdgdswgds
         });
 
         System.in.read();
