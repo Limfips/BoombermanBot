@@ -1,3 +1,4 @@
+//Limfips
 package ru.codebattle.client;
 
 import java.io.IOException;
@@ -7,7 +8,6 @@ import ru.codebattle.client.api.Direction;
 import ru.codebattle.client.api.TurnAction;
 
 public class Main {
-
     private static final String SERVER_ADDRESS = "http://localhost:8080/codenjoy-contest/board/player/6mlolfpaekvspk868rdh?code=1855478191833212450&gameName=bomberman";
 
     public static void main(String[] args) throws URISyntaxException, IOException {
