@@ -1,3 +1,4 @@
+//MrD0C
 package ru.codebattle.client;
 
 import java.io.IOException;
