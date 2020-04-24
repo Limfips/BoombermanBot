@@ -1,6 +1,5 @@
 package ru.codebattle.client.algorithm;
 
-import ru.codebattle.client.api.BoardElement;
 import ru.codebattle.client.api.BoardPoint;
 
 import java.util.List;
@@ -11,24 +10,18 @@ import java.util.Objects;
  */
 public class Node {
 
-    private final BoardPoint location;
-    private final BoardElement element;
+    private final BoardPoint boardPoint;
     private int currentCost;
     private int heuristicCost;
-    private Node parent;
+    private Node previousNode;
     private List<Node> neighbours;
 
-    public Node(BoardPoint location, Node parent,BoardElement element) {
-        this.location = location;
-        this.parent = parent;
-        this.element = element;
+    public Node(BoardPoint boardPoint, Node previousNode) {
+        this.boardPoint = boardPoint;
+        this.previousNode = previousNode;
     }
 
-    public BoardElement getElement() {
-        return element;
-    }
-
-    public void setNeighbours(List<Node> neighbours){
+    public void setNeighbours(List<Node> neighbours) {
         this.neighbours = neighbours;
     }
 
@@ -36,7 +29,7 @@ public class Node {
         return neighbours;
     }
 
-    public int getPriority(){
+    public int getPriority() {
         return currentCost + heuristicCost;
     }
 
@@ -52,20 +45,20 @@ public class Node {
         return heuristicCost;
     }
 
-    public void setParent(Node parent) {
-        this.parent = parent;
+    public void setPreviousNode(Node previousNode) {
+        this.previousNode = previousNode;
     }
 
     public void setHeuristicCost(int heuristicCost) {
         this.heuristicCost = heuristicCost;
     }
 
-    public BoardPoint getLocation() {
-        return location;
+    public BoardPoint getBoardPoint() {
+        return boardPoint;
     }
 
-    public Node getParent() {
-        return parent;
+    public Node getPreviousNode() {
+        return previousNode;
     }
 
     @Override
@@ -73,15 +66,14 @@ public class Node {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Node node = (Node) o;
-        return element == node.element &&
-                currentCost == node.currentCost &&
+        return currentCost == node.currentCost &&
                 heuristicCost == node.heuristicCost &&
-                Objects.equals(location, node.location) &&
-                Objects.equals(parent, node.parent);
+                Objects.equals(boardPoint, node.boardPoint) &&
+                Objects.equals(previousNode, node.previousNode);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(location, parent, element, currentCost, heuristicCost);
+        return Objects.hash(boardPoint, currentCost, heuristicCost, previousNode);
     }
 }

@@ -3,7 +3,6 @@ package ru.codebattle.client.algorithm;
 import ru.codebattle.client.api.BoardPoint;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -12,24 +11,24 @@ import java.util.List;
  */
 public class AStar {
 
-    private BoardPoint mainGoal;
-    private Map map;
-    private BoardPoint bot;
+    private final BoardPoint mainGoal;
+    private final BoardPoint currentBotPosition;
+    private final Map map;
 
-    public AStar(final Map map, final BoardPoint mainGoal, BoardPoint bot) {
+    public AStar(final Map map, final BoardPoint mainGoal, BoardPoint currentBotPosition) {
         this.map = map;
         this.mainGoal = mainGoal;
-        this.bot = bot;
+        this.currentBotPosition = currentBotPosition;
     }
 
-    public List<Node> getPath() {
+    public BoardPoint getNextStep() {
         Node target = getWayToGoal(mainGoal);
         return buildPath(target);
     }
 
     private Node getWayToGoal(BoardPoint goal) {
-        Node startNode = map.getPointByLocation(bot);
-        BoardPoint goalLocation = map.getPointByLocation(goal).getLocation();
+        Node startNode = map.getNodeByLocation(currentBotPosition);
+        BoardPoint goalLocation = map.getNodeByLocation(goal).getBoardPoint();
         List<Node> openSet = new ArrayList<>();
         HashSet<Node> closedSet = new HashSet<>();
         openSet.add(startNode);
@@ -46,22 +45,20 @@ public class AStar {
             openSet.remove(currentNode);
             closedSet.add(currentNode);
 
-            if (currentNode.getLocation().equals(goalLocation)) {
+            if (currentNode.getBoardPoint().equals(goalLocation)) {
                 return currentNode;
             }
+
             List<Node> neighbours = map.getParents(currentNode);
             for (Node neighbourNode : neighbours) {
-                if (closedSet.contains(neighbourNode)) {
-                    continue;
-                }
-                if (neighbourNode == null){
+                if ((closedSet.contains(neighbourNode)) || (neighbourNode == null)) {
                     continue;
                 }
                 int movementCost = computeMovementCost(currentNode, neighbourNode);
                 if (movementCost < neighbourNode.getCurrentCost() || !openSet.contains(neighbourNode)) {
                     neighbourNode.setCurrentCost(movementCost);
-                    neighbourNode.setHeuristicCost(getDistance(neighbourNode.getLocation(), goalLocation));
-                    neighbourNode.setParent(currentNode);
+                    neighbourNode.setHeuristicCost(getDistance(neighbourNode.getBoardPoint(), goalLocation));
+                    neighbourNode.setPreviousNode(currentNode);
 
                     if (!openSet.contains(neighbourNode)) {
                         openSet.add(neighbourNode);
@@ -81,7 +78,7 @@ public class AStar {
     }
 
     private int computeMovementCost(Node a1, Node a2) {
-        return a1.getCurrentCost() + getDistance(a1.getLocation(), a2.getLocation());
+        return a1.getCurrentCost() + getDistance(a1.getBoardPoint(), a2.getBoardPoint());
     }
 
     private int getDistance(BoardPoint a, BoardPoint b) {
@@ -93,15 +90,11 @@ public class AStar {
         return 2 * dstX + (dstY - dstX);
     }
 
-    private List<Node> buildPath(Node target) {
-        List<Node> path = new ArrayList<>();
+    private BoardPoint buildPath(final Node target) {
         Node currentNode = target;
-        BoardPoint botLocation = bot;
-        while (!currentNode.getLocation().equals(botLocation)) {
-            path.add(currentNode);
-            currentNode = currentNode.getParent();
+        while (!currentNode.getBoardPoint().equals(currentBotPosition)) {
+            currentNode = currentNode.getPreviousNode();
         }
-        Collections.reverse(path);
-        return path;
+        return currentNode.getBoardPoint();
     }
 }

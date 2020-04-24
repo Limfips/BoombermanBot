@@ -4,7 +4,6 @@ package ru.codebattle.client;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Random;
 
 import ru.codebattle.client.algorithm.AStar;
 import ru.codebattle.client.algorithm.Map;
@@ -22,28 +21,12 @@ public class Main {
         CodeBattleClient client = new CodeBattleClient(SERVER_ADDRESS);
         int i = 0;
         client.run(gameBoard -> {
-            Map map = new Map(gameBoard.getBarriers(),gameBoard.size(),gameBoard.getBoardString());
-            BoardPoint goal = new BoardPoint(4,2);
-            AStar aStar = new AStar(map,goal,gameBoard.getBomberman().get(0));
-            List<Node> path = aStar.getPath();
-            BoardPoint bot = gameBoard.getBomberman().get(0);
-            BoardPoint nextPath = path.get(0).getLocation();
-            var direction = Direction.values()[0];
-            TurnAction turnAction = new TurnAction(true,direction);
-            if (nextPath.getX() != bot.getX()){
-                if (nextPath.getX()>bot.getX()){
-                    turnAction = new TurnAction(false,Direction.RIGHT);
-                } else {
-                    turnAction = new TurnAction(false,Direction.LEFT);
-                }
-            } else {
-                if (nextPath.getY()>bot.getY()){
-                    turnAction = new TurnAction(false,Direction.DOWN);
-                } else {
-                    turnAction = new TurnAction(false,Direction.UP);
-                }
-            }
-            return turnAction;
+            Map map = new Map(gameBoard.getBarriers(), gameBoard.size());
+            BoardPoint goal = new BoardPoint(4, 2);
+            AStar aStar = new AStar(map, goal, gameBoard.getBomberman().get(0));
+            BoardPoint nextStep = aStar.getNextStep();
+            BoardPoint currentBotPosition = gameBoard.getBomberman().get(0);
+            return new TurnAction(nextStep,currentBotPosition);
         });
 
         System.in.read();
