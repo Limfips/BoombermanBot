@@ -28,6 +28,7 @@ public class Map {
         this.barriers = barriers;
         this.boardString = boardString;
         this.simpleGraph = new ArrayList<>();
+        this.emptyCells = new ArrayList<>();
         initEmptyBoardPoint();
         initNeighbours();
     }

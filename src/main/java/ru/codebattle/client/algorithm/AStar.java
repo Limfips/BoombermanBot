@@ -54,6 +54,9 @@ public class AStar {
                 if (closedSet.contains(neighbourNode)) {
                     continue;
                 }
+                if (neighbourNode == null){
+                    continue;
+                }
                 int movementCost = computeMovementCost(currentNode, neighbourNode);
                 if (movementCost < neighbourNode.getCurrentCost() || !openSet.contains(neighbourNode)) {
                     neighbourNode.setCurrentCost(movementCost);

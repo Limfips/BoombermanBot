@@ -15,14 +15,15 @@ import ru.codebattle.client.api.TurnAction;
 
 public class Main {
 
-    private static final String SERVER_ADDRESS = "http://localhost:8080/codenjoy-contest/board/player/6mlolfpaekvspk868rdh?code=1855478191833212450&gameName=bomberman";
+    private static final String SERVER_ADDRESS = "http://codebattle2020s1.westeurope.cloudapp.azure.com/codenjoy-contest/board/player/tvq0nhelcofofsi75v1v?code=7025227631678866934";
+
 
     public static void main(String[] args) throws URISyntaxException, IOException {
         CodeBattleClient client = new CodeBattleClient(SERVER_ADDRESS);
         int i = 0;
         client.run(gameBoard -> {
             Map map = new Map(gameBoard.getBarriers(),gameBoard.size(),gameBoard.getBoardString());
-            BoardPoint goal = new BoardPoint(15,6);
+            BoardPoint goal = new BoardPoint(4,2);
             AStar aStar = new AStar(map,goal,gameBoard.getBomberman().get(0));
             List<Node> path = aStar.getPath();
             BoardPoint bot = gameBoard.getBomberman().get(0);
@@ -31,15 +32,15 @@ public class Main {
             TurnAction turnAction = new TurnAction(true,direction);
             if (nextPath.getX() != bot.getX()){
                 if (nextPath.getX()>bot.getX()){
-                    turnAction = new TurnAction(true,Direction.RIGHT);
+                    turnAction = new TurnAction(false,Direction.RIGHT);
                 } else {
-                    turnAction = new TurnAction(true,Direction.LEFT);
+                    turnAction = new TurnAction(false,Direction.LEFT);
                 }
             } else {
                 if (nextPath.getY()>bot.getY()){
-                    turnAction = new TurnAction(true,Direction.DOWN);
+                    turnAction = new TurnAction(false,Direction.DOWN);
                 } else {
-                    turnAction = new TurnAction(true,Direction.UP);
+                    turnAction = new TurnAction(false,Direction.UP);
                 }
             }
             return turnAction;
