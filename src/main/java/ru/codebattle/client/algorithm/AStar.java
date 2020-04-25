@@ -99,6 +99,9 @@ public class AStar {
     private BoardPoint buildPath(final Node target) {
         List<Node> path = new ArrayList<>();
         Node currentNode = target;
+        if (currentNode == null){
+            return currentBotPosition;
+        }
         while (!currentNode.getBoardPoint().equals(currentBotPosition)) {
             path.add(currentNode);
             currentNode = currentNode.getPreviousNode();
@@ -112,6 +115,9 @@ public class AStar {
 
 
     private Direction determineDirection(BoardPoint nextStep, BoardPoint currentBotPosition) {
+        if (nextStep.getX() == currentBotPosition.getX() && nextStep.getY() == currentBotPosition.getY()){
+            return Direction.STOP;
+        }
         if (nextStep.getX() != currentBotPosition.getX()) {
             if (compareCoordinates(nextStep.getX(), currentBotPosition.getX())) {
                 return Direction.RIGHT;
