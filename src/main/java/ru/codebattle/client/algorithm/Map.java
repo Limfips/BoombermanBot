@@ -16,13 +16,40 @@ public class Map {
             new BoardPoint(0, 1));
 
     private final int size;
-    private final List<Node> emptyCells;
+    private List<Node> emptyCells;
+    private List<BoardPoint> michopersBoardPoint;
 
-    public Map(List<BoardPoint> barriers, int size) {
+    public Map(List<BoardPoint> barriers, int size,List<BoardPoint> michoppers) {
         this.size = size;
         this.emptyCells = new ArrayList<>();
+        this.michopersBoardPoint = new ArrayList<>();
         initEmptyCells(barriers);
+        getMichopers(michoppers);
+        removeDangerZone();
         initNeighbours();
+    }
+
+    private void getMichopers(List<BoardPoint> michoppers){
+        for (BoardPoint point: michoppers){
+            Node michoper = new Node(point,null);
+            BoardPoint bp = michoper.getBoardPoint();
+            for (BoardPoint location:DIRS){
+                BoardPoint neighborBoardPoint = new BoardPoint(bp.getX() + location.getX(), bp.getY() + location.getY());
+                if (!isOutOfBoard(neighborBoardPoint)){
+                    michopersBoardPoint.add(neighborBoardPoint);
+                }
+            }
+        }
+    }
+
+    private void removeDangerZone(){
+        for (BoardPoint point:this.michopersBoardPoint){
+            for (int i =0;i<emptyCells.size();i++){
+                if (emptyCells.get(i).getBoardPoint().equals(point)){
+                    emptyCells.remove(i);
+                }
+            }
+        }
     }
 
     private void initEmptyCells(List<BoardPoint> barriers) {

@@ -1,8 +1,10 @@
 package ru.codebattle.client.algorithm;
 
 import ru.codebattle.client.api.BoardPoint;
+import ru.codebattle.client.api.Direction;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -20,10 +22,14 @@ public class AStar {
         this.mainGoal = mainGoal;
         this.currentBotPosition = currentBotPosition;
     }
-
-    public BoardPoint getNextStep() {
+    
+    public Direction getNextStep() {
+        if (map.getNodeByLocation(mainGoal) == null){
+            return Direction.STOP;
+        }
         Node target = getWayToGoal(mainGoal);
-        return buildPath(target);
+        BoardPoint nextStep = buildPath(target);
+        return determineDirection(nextStep,currentBotPosition);
     }
 
     private Node getWayToGoal(BoardPoint goal) {
@@ -91,10 +97,32 @@ public class AStar {
     }
 
     private BoardPoint buildPath(final Node target) {
+        List<Node> path = new ArrayList<>();
         Node currentNode = target;
         while (!currentNode.getBoardPoint().equals(currentBotPosition)) {
+            path.add(currentNode);
             currentNode = currentNode.getPreviousNode();
         }
-        return currentNode.getBoardPoint();
+        Collections.reverse(path);
+        return path.get(0).getBoardPoint();
+    }
+
+
+    private Direction determineDirection(BoardPoint nextStep, BoardPoint currentBotPosition) {
+        if (nextStep.getX() != currentBotPosition.getX()) {
+            if (compareCoordinates(nextStep.getX(), currentBotPosition.getX())) {
+                return Direction.RIGHT;
+            } else {
+                return Direction.LEFT;
+            }
+        } else if (compareCoordinates(nextStep.getY(), currentBotPosition.getY())) {
+            return Direction.DOWN;
+        } else {
+            return Direction.UP;
+        }
+    }
+
+    private boolean compareCoordinates(int a1, int a2) {
+        return a1 > a2;
     }
 }
