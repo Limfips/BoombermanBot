@@ -19,13 +19,17 @@ public class Map {
     private List<Node> emptyCells;
     private List<BoardPoint> michopersBoardPoint;
 
-    public Map(List<BoardPoint> barriers, int size,List<BoardPoint> michoppers) {
+    public Map(List<BoardPoint> barriers, int size,List<BoardPoint> michoppers,BoardPoint botPosition) {
         this.size = size;
         this.emptyCells = new ArrayList<>();
         this.michopersBoardPoint = new ArrayList<>();
         initEmptyCells(barriers);
         getMichopers(michoppers);
         removeDangerZone();
+        Node bot = new Node(botPosition,null);
+        if (!emptyCells.contains(bot)){
+            emptyCells.add(bot);
+        }
         initNeighbours();
     }
 

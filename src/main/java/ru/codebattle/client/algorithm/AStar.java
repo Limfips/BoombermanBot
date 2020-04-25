@@ -22,9 +22,9 @@ public class AStar {
         this.mainGoal = mainGoal;
         this.currentBotPosition = currentBotPosition;
     }
-    
+
     public Direction getNextStep() {
-        if (map.getNodeByLocation(mainGoal) == null){
+        if (map.getNodeByLocation(mainGoal) == null || mainGoal.equals(currentBotPosition)){
             return Direction.STOP;
         }
         Node target = getWayToGoal(mainGoal);
@@ -102,6 +102,9 @@ public class AStar {
         while (!currentNode.getBoardPoint().equals(currentBotPosition)) {
             path.add(currentNode);
             currentNode = currentNode.getPreviousNode();
+            if (currentNode == null){
+                return currentBotPosition;
+            }
         }
         Collections.reverse(path);
         return path.get(0).getBoardPoint();

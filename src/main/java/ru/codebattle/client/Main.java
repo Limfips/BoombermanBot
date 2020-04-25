@@ -20,9 +20,10 @@ public class Main {
     public static void main(String[] args) throws URISyntaxException, IOException {
         CodeBattleClient client = new CodeBattleClient(SERVER_ADDRESS);
         client.run(gameBoard -> {
-            Map map = new Map(gameBoard.getBarriers(), gameBoard.size(),gameBoard.getMeatchoppers());
-            BoardPoint goal = new BoardPoint(4, 2);
-            AStar aStar = new AStar(map, goal, gameBoard.getBomberman().get(0));
+            BoardPoint bomberman = gameBoard.getBomberman().get(0);
+            Map map = new Map(gameBoard.getBarriers(), gameBoard.size(),gameBoard.getMeatchoppers(),bomberman);
+            BoardPoint goal = new BoardPoint(16, 2);
+            AStar aStar = new AStar(map, goal, bomberman);
             Direction step = aStar.getNextStep();
             return new TurnAction(false,step);
         });
