@@ -9,5 +9,5 @@ import java.util.List;
  */
 public interface IPointsListener {
     void alertEnemyNotify(List<BoardPoint> points);
-    void alertWallNotify(List<BoardPoint> points);
+    void alertBombsNotify(List<BoardPoint> points);
 }

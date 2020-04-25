@@ -41,7 +41,7 @@ public class SonarService {
     }
 
     /**
-     * Метод отключение оистенера {@link IPointsListener} от данного класса {@link SonarService}
+     * Метод отключение листенера {@link IPointsListener} от данного класса {@link SonarService}
      */
     public void removeListenerAlertEnemy() {
         this.listener = null;
@@ -69,8 +69,26 @@ public class SonarService {
         processingMap();
     }
 
+    //Сканирование если есть листенер
     private void processingMap() {
+        if (listener != null) {
+            onScanEnemy();
+            onScanBombs();
+        }
+    }
 
+    //Метод сканирование области на наличие бомб
+    private void onScanBombs() {
+        if (getCountBombs() > 0) {
+            listener.alertBombsNotify(getBombsPoints());
+        }
+    }
+
+    //Метод сканирование области на наличие врагов
+    private void onScanEnemy() {
+        if (getCountOtherBomber() > 0) {
+            listener.alertEnemyNotify(getOtherBomberPoints());
+        }
     }
 
     //Метод создания точек по оси Х
@@ -143,11 +161,47 @@ public class SonarService {
     /**
      * @return количество свободных клеток
      */
-    public int getCountNones() {
+    public int getCountNones()   {
         return findAllElements(BoardElement.NONE).size();
+    }
+
+    /**
+     * @return количество бомб
+     */
+    public int getCountBombs() {
+        return findAllElements(BoardElement.BOMB_TIMER_5,
+                BoardElement.BOMB_TIMER_4,
+                BoardElement.BOMB_TIMER_3,
+                BoardElement.BOMB_TIMER_2,
+                BoardElement.BOMB_TIMER_1,
+                BoardElement.BOOM).size();
+    }
+
+    private int getCountOtherBomber() {
+        return findAllElements(BoardElement.OTHER_BOMBERMAN).size();
+    }
+
+    private List<BoardPoint> getOtherBomberPoints() {
+        return findAllElements(BoardElement.OTHER_BOMBERMAN);
+    }
+
+    private List<BoardPoint> getBombsPoints() {
+        return findAllElements(BoardElement.BOMB_TIMER_5,
+                BoardElement.BOMB_TIMER_4,
+                BoardElement.BOMB_TIMER_3,
+                BoardElement.BOMB_TIMER_2,
+                BoardElement.BOMB_TIMER_1,
+                BoardElement.BOOM);
     }
 
     //1) ToDo создать метод ближайшей свободной точки от координаты поиска
     //2) ToDo создать observer (если обнаружен противник в области сканирования)
     //3) ToDo создать метод по поиску бомб
+
+    //1) ToDo Сканирование области (сохраняет область и анализирует)
+    //2) ToDo Листенер на события (если в поле сканирования есть враг или бомба)
+    // Данила, если ты дочитал до сюда, то земля тебе пухом и твоему оставшемуся в норме глазу,
+    // у меня какая то херь тоже началась с глазом (левым), так что я хз когда завтра появлюсь (точно до обеда)
+    // Попробуй по пользоваться данным классом. Если будут ошибки или будет требоваться доработка, пиши, как зайду сохзвонимся и исправим.
+    // Комментарии врорде понятные)))))
 }

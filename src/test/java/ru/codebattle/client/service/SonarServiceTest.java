@@ -51,17 +51,7 @@ public class SonarServiceTest {
         SonarService sonar = new SonarService(gameBoard);
         sonar.scan(characterPoint);
 
-        sonar.addListenerAlertEnemy(new IPointsListener() {
-            @Override
-            public void alertEnemyNotify(List<BoardPoint> points) {
-                System.out.println("Alert Enemy!!!!");
-            }
 
-            @Override
-            public void alertWallNotify(List<BoardPoint> points) {
-                System.out.println("Alert Walls!!!!");
-            }
-        });
 
         assertEquals(sonar.getCountWalls(), 11);
         assertEquals(sonar.getCountDestroyWalls(), 7);
