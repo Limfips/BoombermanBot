@@ -4,7 +4,6 @@ import ru.codebattle.client.api.BoardPoint;
 import ru.codebattle.client.api.Direction;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -14,65 +13,77 @@ import java.util.List;
 public class AStar {
 
     private final BoardPoint mainGoal;
-    private final BoardPoint currentBotPosition;
+    private final BoardPoint botPosition;
     private final Map map;
 
-    public AStar(final Map map, final BoardPoint mainGoal, BoardPoint currentBotPosition) {
+    public AStar(final Map map, final BoardPoint mainGoal, BoardPoint botPosition) {
         this.map = map;
         this.mainGoal = mainGoal;
-        this.currentBotPosition = currentBotPosition;
+        this.botPosition = botPosition;
     }
 
     public Direction getNextStep() {
-        if (map.getNodeByLocation(mainGoal) == null || mainGoal.equals(currentBotPosition)){
+        if (checkMainGoal()){
             return Direction.STOP;
         }
-        Node target = getWayToGoal(mainGoal);
+        Node target = getWayToGoal();
         BoardPoint nextStep = buildPath(target);
-        return determineDirection(nextStep,currentBotPosition);
+        return determineDirection(nextStep, botPosition);
     }
 
-    private Node getWayToGoal(BoardPoint goal) {
-        Node startNode = map.getNodeByLocation(currentBotPosition);
-        BoardPoint goalLocation = map.getNodeByLocation(goal).getBoardPoint();
+    private boolean checkMainGoal() {
+        return map.getNodeByLocation(mainGoal) == null || mainGoal.equals(botPosition);
+    }
+
+    private Node getWayToGoal() {
+        Node startNode = map.getNodeByLocation(botPosition);
         List<Node> openSet = new ArrayList<>();
         HashSet<Node> closedSet = new HashSet<>();
         openSet.add(startNode);
 
         while (openSet.size() > 0) {
-            Node currentNode = openSet.get(0);
-            int size = openSet.size();
-            for (int i = 1; i < size; i++) {
-                Node nextNode = openSet.get(i);
-                if (comparePriority(nextNode, currentNode) && compareHeuristicCost(nextNode, currentNode)) {
-                    currentNode = openSet.get(i);
-                }
-            }
-            openSet.remove(currentNode);
-            closedSet.add(currentNode);
+            Node bestNode = getBestNode(openSet);
+            openSet.remove(bestNode);
+            closedSet.add(bestNode);
 
-            if (currentNode.getBoardPoint().equals(goalLocation)) {
-                return currentNode;
+            if (bestNode.getBoardPoint().equals(mainGoal)) {
+                return bestNode;
             }
 
-            List<Node> neighbours = map.getParents(currentNode);
-            for (Node neighbourNode : neighbours) {
-                if ((closedSet.contains(neighbourNode)) || (neighbourNode == null)) {
-                    continue;
-                }
-                int movementCost = computeMovementCost(currentNode, neighbourNode);
-                if (movementCost < neighbourNode.getCurrentCost() || !openSet.contains(neighbourNode)) {
-                    neighbourNode.setCurrentCost(movementCost);
-                    neighbourNode.setHeuristicCost(getDistance(neighbourNode.getBoardPoint(), goalLocation));
-                    neighbourNode.setPreviousNode(currentNode);
+            addNeighbourNodes(openSet, closedSet, bestNode);
+        }
+        return null;
+    }
 
-                    if (!openSet.contains(neighbourNode)) {
-                        openSet.add(neighbourNode);
-                    }
+    private Node getBestNode(List<Node> openSet) {
+        Node currentNode = openSet.get(0);
+        int size = openSet.size();
+        for (int i = 1; i < size; i++) {
+            Node nextNode = openSet.get(i);
+            if (comparePriority(nextNode, currentNode) && compareHeuristicCost(nextNode, currentNode)) {
+                currentNode = openSet.get(i);
+            }
+        }
+        return currentNode;
+    }
+
+    private void addNeighbourNodes(List<Node> openSet, HashSet<Node> closedSet, Node bestNode) {
+        List<Node> neighbours = map.getParents(bestNode);
+        for (Node neighbourNode : neighbours) {
+            if ((closedSet.contains(neighbourNode)) || (neighbourNode == null)) {
+                continue;
+            }
+            int movementCost = computeMovementCost(bestNode, neighbourNode);
+            if (movementCost < neighbourNode.getCurrentCost() || !openSet.contains(neighbourNode)) {
+                neighbourNode.setCurrentCost(movementCost);
+                neighbourNode.setHeuristicCost(getDistance(neighbourNode.getBoardPoint(), mainGoal));
+                neighbourNode.setPreviousNode(bestNode);
+
+                if (!openSet.contains(neighbourNode)) {
+                    openSet.add(neighbourNode);
                 }
             }
         }
-        return null;
     }
 
     private boolean comparePriority(Node a1, Node a2) {
@@ -97,17 +108,13 @@ public class AStar {
     }
 
     private BoardPoint buildPath(final Node target) {
-        List<Node> path = new ArrayList<>();
         Node currentNode = target;
-        while (!currentNode.getBoardPoint().equals(currentBotPosition)) {
-            path.add(currentNode);
+        Node prevNode = new Node(botPosition,null);
+        while (currentNode != null && !currentNode.getBoardPoint().equals(botPosition)) {
+            prevNode = currentNode;
             currentNode = currentNode.getPreviousNode();
-            if (currentNode == null){
-                return currentBotPosition;
-            }
         }
-        Collections.reverse(path);
-        return path.get(0).getBoardPoint();
+        return prevNode.getBoardPoint();
     }
 
 

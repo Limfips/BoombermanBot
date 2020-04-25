@@ -17,43 +17,16 @@ public class Map {
 
     private final int size;
     private List<Node> emptyCells;
-    private List<BoardPoint> michopersBoardPoint;
+    private List<Node> meatChopperDangerPoints;
 
-    public Map(List<BoardPoint> barriers, int size,List<BoardPoint> michoppers,BoardPoint botPosition) {
+    public Map(List<BoardPoint> barriers, int size,List<BoardPoint> meatChoppers,BoardPoint botPosition) {
         this.size = size;
         this.emptyCells = new ArrayList<>();
-        this.michopersBoardPoint = new ArrayList<>();
+        this.meatChopperDangerPoints = new ArrayList<>();
         initEmptyCells(barriers);
-        getMichopers(michoppers);
-        removeDangerZone();
-        Node bot = new Node(botPosition,null);
-        if (!emptyCells.contains(bot)){
-            emptyCells.add(bot);
-        }
+        removeDangerZones(meatChoppers);
+        addBotPosition(botPosition);
         initNeighbours();
-    }
-
-    private void getMichopers(List<BoardPoint> michoppers){
-        for (BoardPoint point: michoppers){
-            Node michoper = new Node(point,null);
-            BoardPoint bp = michoper.getBoardPoint();
-            for (BoardPoint location:DIRS){
-                BoardPoint neighborBoardPoint = new BoardPoint(bp.getX() + location.getX(), bp.getY() + location.getY());
-                if (!isOutOfBoard(neighborBoardPoint)){
-                    michopersBoardPoint.add(neighborBoardPoint);
-                }
-            }
-        }
-    }
-
-    private void removeDangerZone(){
-        for (BoardPoint point:this.michopersBoardPoint){
-            for (int i =0;i<emptyCells.size();i++){
-                if (emptyCells.get(i).getBoardPoint().equals(point)){
-                    emptyCells.remove(i);
-                }
-            }
-        }
     }
 
     private void initEmptyCells(List<BoardPoint> barriers) {
@@ -71,23 +44,47 @@ public class Map {
         return new BoardPoint(shift % size, shift / size);
     }
 
+    private void removeDangerZones(List<BoardPoint> meatChoppers){
+        initMeatChoppersDangerNodes(meatChoppers);
+        deleteDangerPoints();
+    }
+
+    private void initMeatChoppersDangerNodes(List<BoardPoint> meatChoppers){
+        for (BoardPoint point: meatChoppers){
+            meatChopperDangerPoints.addAll(findNeighbours(point));
+        }
+    }
+
+    private void deleteDangerPoints(){
+        emptyCells.removeAll(meatChopperDangerPoints);
+        this.meatChopperDangerPoints = null;
+    }
+
+    private void addBotPosition(BoardPoint botPosition) {
+        Node bot = new Node(botPosition,null);
+        if (!emptyCells.contains(bot)){
+            emptyCells.add(bot);
+        }
+    }
+
     private void initNeighbours() {
         for (Node current : this.emptyCells) {
             BoardPoint id = current.getBoardPoint();
-            List<Node> neighbours = new LinkedList<>();
-            for (BoardPoint location : DIRS) {
-                BoardPoint neighborBoardPoint = new BoardPoint(id.getX() + location.getX(), id.getY() + location.getY());
-                if (!isOutOfBoard(neighborBoardPoint)) {
-                    Node newNode = new Node(neighborBoardPoint, null);
-                    neighbours.add(newNode);
-                }
-            }
+            List<Node> neighbours = findNeighbours(id);
             current.setNeighbours(neighbours);
         }
     }
 
-    private boolean isOutOfBoard(BoardPoint pt) {
-        return pt.isOutOfBoard(size);
+    private List<Node> findNeighbours(BoardPoint currentPoint){
+         List<Node> neighbours = new ArrayList<>();
+          for (BoardPoint location:DIRS){
+              BoardPoint neighborBoardPoint = new BoardPoint(currentPoint.getX() + location.getX(), currentPoint.getY() + location.getY());
+              if (!neighborBoardPoint.isOutOfBoard(this.size)) {
+                  Node newNode = new Node(neighborBoardPoint, null);
+                  neighbours.add(newNode);
+              }
+          }
+          return neighbours;
     }
 
     public Node getNodeByLocation(BoardPoint boardPoint) {
