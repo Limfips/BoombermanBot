@@ -5,7 +5,7 @@ import ru.codebattle.client.api.BoardElement;
 import ru.codebattle.client.api.BoardPoint;
 import ru.codebattle.client.api.GameBoard;
 
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,6 +22,7 @@ public class SonarService {
     private GameBoard gameBoard;
     private BoardPoint characterPoint;
     private List<BoardPoint> scannerMap;
+    private IPointsListener listener;
 
     /**
      * @param gameBoard - игровое поле класса {@link GameBoard}
@@ -29,6 +30,21 @@ public class SonarService {
     public SonarService(GameBoard gameBoard) {
         this.gameBoard = gameBoard;
         this.scannerMap = new ArrayList<>();
+    }
+
+    /**
+     * Метод подключение листенера {@link IPointsListener} к данному классу {@link SonarService}
+     * @param listener {@link IPointsListener}
+     */
+    public void addListenerAlertEnemy(IPointsListener listener) {
+        this.listener = listener;
+    }
+
+    /**
+     * Метод отключение оистенера {@link IPointsListener} от данного класса {@link SonarService}
+     */
+    public void removeListenerAlertEnemy() {
+        this.listener = null;
     }
 
     /**
@@ -49,6 +65,12 @@ public class SonarService {
                 scannerLineX(RADIUS_SCANNER - i, i);
             }
         }
+
+        processingMap();
+    }
+
+    private void processingMap() {
+
     }
 
     //Метод создания точек по оси Х
@@ -74,7 +96,9 @@ public class SonarService {
         return pt.isOutOfBoard(gameBoard.size());
     }
 
-    // Возвращает ссылку на зону сканирования
+    /**
+     * @return ссылка на {@value scannerMap}
+     */
     public List<BoardPoint> getScannerMap() {
         return scannerMap;
     }
@@ -122,4 +146,8 @@ public class SonarService {
     public int getCountNones() {
         return findAllElements(BoardElement.NONE).size();
     }
+
+    //1) ToDo создать метод ближайшей свободной точки от координаты поиска
+    //2) ToDo создать observer (если обнаружен противник в области сканирования)
+    //3) ToDo создать метод по поиску бомб
 }
