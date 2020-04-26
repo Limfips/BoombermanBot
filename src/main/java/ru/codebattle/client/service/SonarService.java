@@ -103,6 +103,7 @@ public class SonarService {
         }
     }
 
+
     //Добавление точки в зону сканирования при наличии удовлетворяющих условие
     private void addPoint(BoardPoint point) {
         if (!isOutOfBoard(point)) {
@@ -176,6 +177,10 @@ public class SonarService {
                 BoardElement.BOMB_TIMER_2,
                 BoardElement.BOMB_TIMER_1,
                 BoardElement.BOOM).size();
+    }
+
+    public int getCountMeatChoppers(){
+        return findAllElements(BoardElement.MEAT_CHOPPER).size();
     }
 
     public int getCountOtherBomber() {

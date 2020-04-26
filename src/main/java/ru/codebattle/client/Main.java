@@ -2,6 +2,7 @@ package ru.codebattle.client;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.sql.SQLOutput;
 import java.util.List;
 import java.util.Random;
 
@@ -19,13 +20,13 @@ public class Main {
 
 
     //Возможно ещё задержка происходит тк что-то долго обрабатывается
-    static int i =0;
+    static boolean isPlanted = false;
     public static void main(String[] args) throws URISyntaxException, IOException {
         CodeBattleClient client = new CodeBattleClient(SERVER_ADDRESS);
         client.run(gameBoard -> {
             BoardPoint bot = gameBoard.getBomberman().get(0);
-            Map map = new Map(gameBoard.getBarriers(), gameBoard.size(),gameBoard.getMeatchoppers(),bot);
-            BoardPoint goal = new BoardPoint(gameBoard.size()-2, 2);
+            Map map = new Map(gameBoard.getBarriers(), gameBoard.size(),gameBoard.getMeatchoppers(),bot,gameBoard.getBombs(),gameBoard.getBoardString());
+            BoardPoint goal = new BoardPoint(1, 1);
             AStar aStar = new AStar(map, goal, bot);
             Direction step = aStar.getNextStep();
             boolean act = false;
@@ -41,11 +42,14 @@ public class Main {
                 }
             });
             service.scan(bot);
-            if (service.getCountOtherBomber() > 0 && i == 2){
-                act = true;
-                i = 0;
-            } else {
-                i++;
+            if (service.getCountOtherBomber() > 0 || service.getCountMeatChoppers() > 0){
+                if (!isPlanted){
+                    act = true;
+                    isPlanted = true;
+                } else {
+                    act = false;
+                    isPlanted = false;
+                }
             }
             return new TurnAction(act,step);
         });
