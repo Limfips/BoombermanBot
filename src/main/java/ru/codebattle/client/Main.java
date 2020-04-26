@@ -1,22 +1,23 @@
+//test
 package ru.codebattle.client;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
+import lombok.val;
 import ru.codebattle.client.algorithm.AStar;
 import ru.codebattle.client.algorithm.Map;
-import ru.codebattle.client.api.BoardPoint;
-import ru.codebattle.client.api.Direction;
-import ru.codebattle.client.api.TurnAction;
+import ru.codebattle.client.api.*;
+import ru.codebattle.client.service.SonarService;
 import ru.codebattle.client.service.SonarServiceHelper;
 
 public class Main {
+    private static final String SERVER_ADDRESS =
+            "http://codebattle2020s1.westeurope.cloudapp.azure.com/codenjoy-contest/board/player/tvq0nhelcofofsi75v1v?code=7025227631678866934";
 
-    private static final String SERVER_ADDRESS = "http://codebattle2020s1.westeurope.cloudapp.azure.com/codenjoy-contest/board/player/tvq0nhelcofofsi75v1v?code=7025227631678866934";
-
-
-    //Возможно ещё задержка происходит тк что-то долго обрабатывается
-    int isStack = 0;
     public static void main(String[] args) throws URISyntaxException, IOException {
         CodeBattleClient client = new CodeBattleClient(SERVER_ADDRESS);
         client.run(gameBoard -> {

@@ -3,6 +3,8 @@ package ru.codebattle.client.service;
 import ru.codebattle.client.api.BoardPoint;
 import ru.codebattle.client.api.GameBoard;
 
+import java.util.List;
+
 /**
  * @author Dudka Leonid RPIS-81
  */
@@ -29,5 +31,9 @@ public class SonarServiceHelper extends SonarService {
      */
     public boolean isDangerous() {
         return scanDangerous(getCharacterPoint()).size() > 0;
+    }
+
+    public boolean isDestroyWall() {
+        return scanDestroyWall(getCharacterPoint()).size() > 0;
     }
 }

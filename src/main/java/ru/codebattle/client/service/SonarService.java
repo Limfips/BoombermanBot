@@ -55,14 +55,14 @@ class SonarService {
     /**
      * @return ссылка на {@value scannerMap}
      */
-    List<BoardPoint> getScannerMap() {
+    public List<BoardPoint> getScannerMap() {
         return scannerMap;
     }
 
     /**
      * @return точки стен
      */
-   public List<BoardPoint> getWallsPoints() {
+    public List<BoardPoint> getWallsPoints() {
         return findAllElements(BoardElement.WALL);
     }
 
@@ -103,7 +103,7 @@ class SonarService {
     /**
      * @return точки врагов-митчеперов
      */
-   public List<BoardPoint> getMeatChopperPoints() {
+    public List<BoardPoint> getMeatChopperPoints() {
         return findAllElements(BoardElement.MEAT_CHOPPER);
     }
 
@@ -122,6 +122,19 @@ class SonarService {
 
     BoardPoint getCharacterPoint() {
         return characterPoint;
+    }
+
+    List<BoardPoint> scanDestroyWall(BoardPoint scannerPoint) {
+        scan(scannerPoint);
+        List<BoardPoint> scanningPoints = new ArrayList<>();
+        for (int i = 0; i < RADIUS_SCANNER; i++) {
+            for (BoardPoint point : scannerMap) {
+                if (isValidDangerousPoint(point, i, scannerPoint) && isDestroyWall(point)) {
+                    scanningPoints.add(point);
+                }
+            }
+        }
+        return scanningPoints;
     }
 
     List<BoardPoint> scanDangerous(BoardPoint scannerPoint) {
@@ -150,6 +163,10 @@ class SonarService {
             }
         }
         return false;
+    }
+
+    private boolean isDestroyWall(BoardPoint boardPoint) {
+        return hasElementAt(boardPoint, BoardElement.DESTROY_WALL);
     }
 
     private boolean isValidDangerousPoint(BoardPoint point, int i, BoardPoint scannerPoint) {
