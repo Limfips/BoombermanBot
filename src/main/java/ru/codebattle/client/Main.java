@@ -3,15 +3,10 @@ package ru.codebattle.client;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 
-import lombok.val;
 import ru.codebattle.client.algorithm.AStar;
 import ru.codebattle.client.algorithm.Map;
 import ru.codebattle.client.api.*;
-import ru.codebattle.client.service.SonarService;
 import ru.codebattle.client.service.SonarServiceHelper;
 
 public class Main {
@@ -23,13 +18,13 @@ public class Main {
         client.run(gameBoard -> {
             BoardPoint bot = gameBoard.getBomberman().get(0);
             Map map = new Map(gameBoard.getBarriers(), gameBoard.size(),gameBoard.getMeatchoppers(),bot,gameBoard.getBombs(),gameBoard.getBoardString());
-            BoardPoint goal = new BoardPoint(gameBoard.size()-2, gameBoard.size()-2);
+            BoardPoint goal = new BoardPoint(1, 1);
             AStar aStar = new AStar(map, goal, bot);
             Direction step = aStar.getNextStep();
             boolean act;
             SonarServiceHelper helper = new SonarServiceHelper(gameBoard);
             helper.scan(bot);
-            act =  helper.getMeatChopperPoints().size() > 0 && !helper.isDangerous() ;
+            act =  (helper.getMeatChopperPoints().size() > 0 || helper.isDestroyWall()) && !helper.isDangerous() ;
             System.out.println(helper.getMeatChopperPoints().size());
             return new TurnAction(act,step);
         });
