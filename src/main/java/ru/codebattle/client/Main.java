@@ -22,12 +22,13 @@ public class Main {
         client.run(gameBoard -> {
             BoardPoint bot = gameBoard.getBomberman().get(0);
             Map map = new Map(gameBoard.getBarriers(), gameBoard.size(),gameBoard.getMeatchoppers(),bot,gameBoard.getBombs(),gameBoard.getBoardString());
-            BoardPoint goal = new BoardPoint(1, gameBoard.size()-4);
+            BoardPoint goal = new BoardPoint(gameBoard.size()-2, gameBoard.size()-2);
             AStar aStar = new AStar(map, goal, bot);
             Direction step = aStar.getNextStep();
             boolean act;
             SonarServiceHelper helper = new SonarServiceHelper(gameBoard);
-            act = helper.getMeatChopperPoints().size() > 0  && !helper.isDangerous();
+            helper.scan(bot);
+            act =  helper.getMeatChopperPoints().size() > 0 && !helper.isDangerous() ;
             System.out.println(helper.getMeatChopperPoints().size());
             return new TurnAction(act,step);
         });

@@ -37,7 +37,7 @@ class SonarService {
      *
      * @param characterPoint - перезаписывает {@value characterPoint} и создаёт область {@value scannerMap}
      */
-    void scan(BoardPoint characterPoint) {
+    public void scan(BoardPoint characterPoint) {
         if (characterPoint == null) throw new NullPointerException(CHARACTER_POINT_NULL_MESSAGE);
         this.characterPoint = characterPoint;
         this.scannerMap.clear();
