@@ -36,28 +36,27 @@ public class SonarServiceTest {
         val characterPoint = gameBoard.getBomberman().get(0);
         SonarService sonar = new SonarService(gameBoard);
         sonar.scan(characterPoint);
-        gameBoard.printBoard();
-
-        sonar.scan(new BoardPoint(27, 1));
-
-        System.out.println(sonar.getMeatChopperPoints());
-        assertEquals(sonar.getMeatChopperPoints().size(), 1);
-//        assertEquals(sonar.getWallsPoints().size(), 9);
-//        assertEquals(sonar.getDestroyWallsPoints().size(), 0);
-//        assertEquals(sonar.getNonesPoints().size(), 21);
-//        assertEquals(sonar.getScannerMap().size(), 32);
+        assertEquals(sonar.getWallsPoints().size(), 9);
+        assertEquals(sonar.getDestroyWallsPoints().size(), 0);
+        assertEquals(sonar.getNonesPoints().size(), 21);
+        assertEquals(sonar.getScannerMap().size(), 32);
     }
 
     @Test
     public void XXX() {
-        GameBoard gameBoard = new GameBoard(firstBoardString);
+        GameBoard gameBoard = new GameBoard(secondBoardString);
         val characterPoint = gameBoard.getBomberman().get(0);
-        SonarService sonar = new SonarService(gameBoard);
-        sonar.scan(characterPoint);
+        SonarServiceHelper helper = new SonarServiceHelper(gameBoard);
+        helper.scan(characterPoint);
+        gameBoard.printBoard();
 
-        assertEquals(sonar.getWallsPoints().size(), 11);
-        assertEquals(sonar.getDestroyWallsPoints().size(), 7);
-        assertEquals(sonar.getNonesPoints().size(), 13);
-        assertEquals(sonar.getScannerMap().size(), 32);
+        helper.scan(new BoardPoint(25, 2));
+
+        System.out.println(helper.getDestroyWallsPoints().toString() + helper.isDestroyWall(3));
+        assertEquals(helper.getMeatChopperPoints().size(), 1);
+//        assertEquals(sonar.getWallsPoints().size(), 9);
+//        assertEquals(sonar.getDestroyWallsPoints().size(), 0);
+//        assertEquals(sonar.getNonesPoints().size(), 21);
+//        assertEquals(sonar.getScannerMap().size(), 32);
     }
 }
