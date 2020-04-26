@@ -127,7 +127,7 @@ class SonarService {
     List<BoardPoint> scanDestroyWall(BoardPoint scannerPoint, int radius) {
         scan(scannerPoint);
         List<BoardPoint> scanningPoints = new ArrayList<>();
-        for (int i = 0; i < radius; i++) {
+        for (int i = 1; i < radius + 1; i++) {
             for (BoardPoint point : scannerMap) {
                 if (isValidDangerousPoint(point, i, scannerPoint) && isDestroyWall(point)) {
                     scanningPoints.add(point);
@@ -140,7 +140,7 @@ class SonarService {
     List<BoardPoint> scanDangerous(BoardPoint scannerPoint, int radius) {
         scan(scannerPoint);
         List<BoardPoint> scanningPoints = new ArrayList<>();
-        for (int i = 0; i < radius; i++) {
+        for (int i = 1; i < radius + 1; i++) {
             for (BoardPoint point : scannerMap) {
                 if (isValidDangerousPoint(point, i, scannerPoint) && isBomb(point)) {
                     scanningPoints.add(point);
@@ -148,6 +148,23 @@ class SonarService {
             }
         }
         return scanningPoints;
+    }
+
+    List<BoardPoint> scanMeatChopper(BoardPoint scannerPoint, int radius) {
+        scan(scannerPoint);
+        List<BoardPoint> scanningPoints = new ArrayList<>();
+        for (int i = 1; i < radius + 1; i++) {
+            for (BoardPoint point : scannerMap) {
+                if (isValidDangerousPoint(point, i, scannerPoint) && isMeatChopper(point)) {
+                    scanningPoints.add(point);
+                }
+            }
+        }
+        return scanningPoints;
+    }
+
+    private boolean isMeatChopper(BoardPoint boardPoint) {
+        return hasElementAt(boardPoint, BoardElement.MEAT_CHOPPER);
     }
 
     private boolean isBomb(BoardPoint boardPoint) {

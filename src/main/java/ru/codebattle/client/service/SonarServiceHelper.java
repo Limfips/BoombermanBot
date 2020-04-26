@@ -36,4 +36,8 @@ public class SonarServiceHelper extends SonarService {
     public boolean isDestroyWall(int radius) {
         return scanDestroyWall(getCharacterPoint(), radius).size() > 0;
     }
+
+    public boolean isMeatChopper(int radius) {
+        return scanMeatChopper(getCharacterPoint(), radius).size() > 0;
+    }
 }
