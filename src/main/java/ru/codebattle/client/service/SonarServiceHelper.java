@@ -29,11 +29,11 @@ public class SonarServiceHelper extends SonarService {
      * Метод проверки опасна ли место под игроком
      * @return boolean
      */
-    public boolean isDangerous() {
-        return scanDangerous(getCharacterPoint()).size() > 0;
+    public boolean isDangerous(int radius) {
+        return scanDangerous(getCharacterPoint(), radius).size() > 0;
     }
 
-    public boolean isDestroyWall() {
-        return scanDestroyWall(getCharacterPoint()).size() > 0;
+    public boolean isDestroyWall(int radius) {
+        return scanDestroyWall(getCharacterPoint(), radius).size() > 0;
     }
 }

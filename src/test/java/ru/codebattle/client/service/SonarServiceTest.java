@@ -55,8 +55,6 @@ public class SonarServiceTest {
         SonarService sonar = new SonarService(gameBoard);
         sonar.scan(characterPoint);
 
-
-
         assertEquals(sonar.getWallsPoints().size(), 11);
         assertEquals(sonar.getDestroyWallsPoints().size(), 7);
         assertEquals(sonar.getNonesPoints().size(), 13);
