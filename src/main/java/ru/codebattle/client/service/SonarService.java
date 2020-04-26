@@ -1,6 +1,7 @@
 package ru.codebattle.client.service;
 
 import lombok.val;
+import lombok.val;
 import ru.codebattle.client.api.BoardElement;
 import ru.codebattle.client.api.BoardPoint;
 import ru.codebattle.client.api.GameBoard;
@@ -177,7 +178,7 @@ public class SonarService {
                 BoardElement.BOOM).size();
     }
 
-    private int getCountOtherBomber() {
+    public int getCountOtherBomber() {
         return findAllElements(BoardElement.OTHER_BOMBERMAN).size();
     }
 
