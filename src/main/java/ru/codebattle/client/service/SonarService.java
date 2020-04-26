@@ -16,7 +16,7 @@ import java.util.List;
  */
 class SonarService {
 
-    private static final int RADIUS_SCANNER = 4;
+    public static final int RADIUS_SCANNER = 4;
     private static final String CHARACTER_POINT_NULL_MESSAGE = "scan(): characterPoint is null";
 
     private GameBoard gameBoard;
@@ -124,10 +124,10 @@ class SonarService {
         return characterPoint;
     }
 
-    List<BoardPoint> scanDestroyWall(BoardPoint scannerPoint) {
+    List<BoardPoint> scanDestroyWall(BoardPoint scannerPoint, int radius) {
         scan(scannerPoint);
         List<BoardPoint> scanningPoints = new ArrayList<>();
-        for (int i = 0; i < RADIUS_SCANNER; i++) {
+        for (int i = 0; i < radius; i++) {
             for (BoardPoint point : scannerMap) {
                 if (isValidDangerousPoint(point, i, scannerPoint) && isDestroyWall(point)) {
                     scanningPoints.add(point);
@@ -137,10 +137,10 @@ class SonarService {
         return scanningPoints;
     }
 
-    List<BoardPoint> scanDangerous(BoardPoint scannerPoint) {
+    List<BoardPoint> scanDangerous(BoardPoint scannerPoint, int radius) {
         scan(scannerPoint);
         List<BoardPoint> scanningPoints = new ArrayList<>();
-        for (int i = 0; i < RADIUS_SCANNER; i++) {
+        for (int i = 0; i < radius; i++) {
             for (BoardPoint point : scannerMap) {
                 if (isValidDangerousPoint(point, i, scannerPoint) && isBomb(point)) {
                     scanningPoints.add(point);
