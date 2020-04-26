@@ -9,7 +9,6 @@ import java.util.Random;
 
 import lombok.val;
 import ru.codebattle.client.api.*;
-import ru.codebattle.client.service.SonarService;
 
 public class Main {
     private static final String SERVER_ADDRESS =
