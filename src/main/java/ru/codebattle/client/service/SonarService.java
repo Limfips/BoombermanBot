@@ -62,28 +62,28 @@ class SonarService {
     /**
      * @return точки стен
      */
-    List<BoardPoint> getWallsPoints() {
+   public List<BoardPoint> getWallsPoints() {
         return findAllElements(BoardElement.WALL);
     }
 
     /**
      * @return точки разрушаемых стен
      */
-    List<BoardPoint> getDestroyWallsPoints() {
+    public List<BoardPoint> getDestroyWallsPoints() {
         return findAllElements(BoardElement.DESTROY_WALL);
     }
 
     /**
      * @return точки свободных клеток
      */
-    List<BoardPoint> getNonesPoints() {
+    public List<BoardPoint> getNonesPoints() {
         return findAllElements(BoardElement.NONE);
     }
 
     /**
      * @return точки бомб
      */
-    List<BoardPoint> getBombsPoints() {
+    public List<BoardPoint> getBombsPoints() {
         return findAllElements(
                 BoardElement.BOMB_TIMER_5,
                 BoardElement.BOMB_TIMER_4,
@@ -96,14 +96,14 @@ class SonarService {
     /**
      * @return точки врагов-бомберов
      */
-    List<BoardPoint> getOtherBomberPoints() {
+    public List<BoardPoint> getOtherBomberPoints() {
         return findAllElements(BoardElement.OTHER_BOMBERMAN);
     }
 
     /**
      * @return точки врагов-митчеперов
      */
-    List<BoardPoint> getMeatChopperPoints() {
+   public List<BoardPoint> getMeatChopperPoints() {
         return findAllElements(BoardElement.MEAT_CHOPPER);
     }
 

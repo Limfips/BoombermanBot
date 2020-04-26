@@ -2,17 +2,13 @@ package ru.codebattle.client;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.sql.SQLOutput;
-import java.util.List;
-import java.util.Random;
 
 import ru.codebattle.client.algorithm.AStar;
 import ru.codebattle.client.algorithm.Map;
 import ru.codebattle.client.api.BoardPoint;
 import ru.codebattle.client.api.Direction;
 import ru.codebattle.client.api.TurnAction;
-import ru.codebattle.client.service.IPointsListener;
-import ru.codebattle.client.service.SonarService;
+import ru.codebattle.client.service.SonarServiceHelper;
 
 public class Main {
 
@@ -20,37 +16,19 @@ public class Main {
 
 
     //Возможно ещё задержка происходит тк что-то долго обрабатывается
-    static boolean isPlanted = false;
+    int isStack = 0;
     public static void main(String[] args) throws URISyntaxException, IOException {
         CodeBattleClient client = new CodeBattleClient(SERVER_ADDRESS);
         client.run(gameBoard -> {
             BoardPoint bot = gameBoard.getBomberman().get(0);
             Map map = new Map(gameBoard.getBarriers(), gameBoard.size(),gameBoard.getMeatchoppers(),bot,gameBoard.getBombs(),gameBoard.getBoardString());
-            BoardPoint goal = new BoardPoint(1, 1);
+            BoardPoint goal = new BoardPoint(1, gameBoard.size()-4);
             AStar aStar = new AStar(map, goal, bot);
             Direction step = aStar.getNextStep();
-            boolean act = false;
-            SonarService service = new SonarService(gameBoard);
-            service.addListenerAlertEnemy(new IPointsListener() {
-                @Override
-                public void alertEnemyNotify(List<BoardPoint> points) {
-                }
-
-                @Override
-                public void alertBombsNotify(List<BoardPoint> points) {
-
-                }
-            });
-            service.scan(bot);
-            if (service.getCountOtherBomber() > 0 || service.getCountMeatChoppers() > 0){
-                if (!isPlanted){
-                    act = true;
-                    isPlanted = true;
-                } else {
-                    act = false;
-                    isPlanted = false;
-                }
-            }
+            boolean act;
+            SonarServiceHelper helper = new SonarServiceHelper(gameBoard);
+            act = helper.getMeatChopperPoints().size() > 0  && !helper.isDangerous();
+            System.out.println(helper.getMeatChopperPoints().size());
             return new TurnAction(act,step);
         });
 
