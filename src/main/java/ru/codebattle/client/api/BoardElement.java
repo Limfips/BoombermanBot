@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public enum BoardElement {
     /// This is your Bomberman
-    BOMBERMAN('☺'),             // this is what he usually looks like
+    BOMBERMAN('☺'),                 // this is what he usually looks like
     BOMB_BOMBERMAN('☻'),        // this is if he is sitting on own bomb
     DEAD_BOMBERMAN('Ѡ'),        // oops, your Bomberman is dead (don't worry, he will appear somewhere in next move)
     // you're getting -200 for each death
