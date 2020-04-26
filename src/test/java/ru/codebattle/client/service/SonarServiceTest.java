@@ -21,12 +21,12 @@ public class SonarServiceTest {
     public void firstTestScan() {
         GameBoard gameBoard = new GameBoard(firstBoardString);
         val characterPoint = gameBoard.getBomberman().get(0);
-        SonarService sonar = new SonarService(gameBoard);
+        SonarServiceHelper sonar = new SonarServiceHelper(gameBoard);
         sonar.scan(characterPoint);
 
-        assertEquals(sonar.getCountWalls(), 11);
-        assertEquals(sonar.getCountDestroyWalls(), 7);
-        assertEquals(sonar.getCountNones(), 13);
+        assertEquals(sonar.getWallsPoints().size(), 11);
+        assertEquals(sonar.getDestroyWallsPoints().size(), 7);
+        assertEquals(sonar.getNonesPoints().size(), 13);
         assertEquals(sonar.getScannerMap().size(), 32);
     }
 
@@ -38,9 +38,9 @@ public class SonarServiceTest {
         sonar.scan(characterPoint);
         gameBoard.printBoard();
 
-        assertEquals(sonar.getCountWalls(), 9);
-        assertEquals(sonar.getCountDestroyWalls(), 0);
-        assertEquals(sonar.getCountNones(), 21);
+        assertEquals(sonar.getWallsPoints().size(), 9);
+        assertEquals(sonar.getDestroyWallsPoints().size(), 0);
+        assertEquals(sonar.getNonesPoints().size(), 21);
         assertEquals(sonar.getScannerMap().size(), 32);
     }
 
@@ -53,9 +53,9 @@ public class SonarServiceTest {
 
 
 
-        assertEquals(sonar.getCountWalls(), 11);
-        assertEquals(sonar.getCountDestroyWalls(), 7);
-        assertEquals(sonar.getCountNones(), 13);
+        assertEquals(sonar.getWallsPoints().size(), 11);
+        assertEquals(sonar.getDestroyWallsPoints().size(), 7);
+        assertEquals(sonar.getNonesPoints().size(), 13);
         assertEquals(sonar.getScannerMap().size(), 32);
     }
 }
