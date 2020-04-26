@@ -18,14 +18,15 @@ public class Main {
         client.run(gameBoard -> {
             BoardPoint bot = gameBoard.getBomberman().get(0);
             Map map = new Map(gameBoard.getBarriers(), gameBoard.size(),gameBoard.getMeatchoppers(),bot,gameBoard.getBombs(),gameBoard.getBoardString());
-            BoardPoint goal = new BoardPoint(1, 1);
+            BoardPoint goal = new BoardPoint(gameBoard.size()-2,gameBoard.size()-2);
             AStar aStar = new AStar(map, goal, bot);
             Direction step = aStar.getNextStep();
             boolean act;
             SonarServiceHelper helper = new SonarServiceHelper(gameBoard);
             helper.scan(bot);
-            act =  (helper.getMeatChopperPoints().size() > 0 || helper.isDestroyWall()) && !helper.isDangerous() ;
+            act =  (helper.getMeatChopperPoints().size() > 0 || helper.isDestroyWall(1)) && !helper.isDangerous(3) ;
             System.out.println(helper.getMeatChopperPoints().size());
+            System.out.println(helper.isDestroyWall(1));
             return new TurnAction(act,step);
         });
 

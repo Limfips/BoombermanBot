@@ -6,6 +6,7 @@ import ru.codebattle.client.api.Direction;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 
 /**
  * @author Daniil Kudiyarov
@@ -24,7 +25,8 @@ public class AStar {
 
     public Direction getNextStep() {
         if (checkMainGoal()){
-            return Direction.STOP;
+            var random = new Random(System.currentTimeMillis());
+           return Direction.values()[random.nextInt(Direction.values().length)];
         }
         Node target = getWayToGoal();
         BoardPoint nextStep = buildPath(target);

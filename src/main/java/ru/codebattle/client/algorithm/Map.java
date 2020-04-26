@@ -61,7 +61,7 @@ public class Map {
     private void getBombNeighbours(List<BoardPoint> bombs){
         for (BoardPoint point:bombs){
             BoardElement element = getElementAt(point);
-            if(element == BoardElement.BOMB_TIMER_1 || element == BoardElement.BOMB_TIMER_2 || element==BoardElement.BOMB_TIMER_3){
+            if(element == BoardElement.BOMB_TIMER_1 || element == BoardElement.BOMB_TIMER_2){
                 this.bombDangerPoints.addAll(findNeighboursBomb(point));
             }
         }
