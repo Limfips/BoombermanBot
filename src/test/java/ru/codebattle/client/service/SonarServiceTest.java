@@ -38,10 +38,14 @@ public class SonarServiceTest {
         sonar.scan(characterPoint);
         gameBoard.printBoard();
 
-        assertEquals(sonar.getWallsPoints().size(), 9);
-        assertEquals(sonar.getDestroyWallsPoints().size(), 0);
-        assertEquals(sonar.getNonesPoints().size(), 21);
-        assertEquals(sonar.getScannerMap().size(), 32);
+        sonar.scan(new BoardPoint(27, 1));
+
+        System.out.println(sonar.getMeatChopperPoints());
+        assertEquals(sonar.getMeatChopperPoints().size(), 1);
+//        assertEquals(sonar.getWallsPoints().size(), 9);
+//        assertEquals(sonar.getDestroyWallsPoints().size(), 0);
+//        assertEquals(sonar.getNonesPoints().size(), 21);
+//        assertEquals(sonar.getScannerMap().size(), 32);
     }
 
     @Test

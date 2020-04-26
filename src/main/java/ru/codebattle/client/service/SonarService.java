@@ -37,7 +37,7 @@ class SonarService {
      *
      * @param characterPoint - перезаписывает {@value characterPoint} и создаёт область {@value scannerMap}
      */
-    void scan(BoardPoint characterPoint) {
+    public void scan(BoardPoint characterPoint) {
         if (characterPoint == null) throw new NullPointerException(CHARACTER_POINT_NULL_MESSAGE);
         this.characterPoint = characterPoint;
         this.scannerMap.clear();
@@ -124,6 +124,19 @@ class SonarService {
         return characterPoint;
     }
 
+    List<BoardPoint> scanDestroyWall(BoardPoint scannerPoint) {
+        scan(scannerPoint);
+        List<BoardPoint> scanningPoints = new ArrayList<>();
+        for (int i = 0; i < RADIUS_SCANNER; i++) {
+            for (BoardPoint point : scannerMap) {
+                if (isValidDangerousPoint(point, i, scannerPoint) && isDestroyWall(point)) {
+                    scanningPoints.add(point);
+                }
+            }
+        }
+        return scanningPoints;
+    }
+
     List<BoardPoint> scanDangerous(BoardPoint scannerPoint) {
         scan(scannerPoint);
         List<BoardPoint> scanningPoints = new ArrayList<>();
@@ -150,6 +163,10 @@ class SonarService {
             }
         }
         return false;
+    }
+
+    private boolean isDestroyWall(BoardPoint boardPoint) {
+        return hasElementAt(boardPoint, BoardElement.DESTROY_WALL);
     }
 
     private boolean isValidDangerousPoint(BoardPoint point, int i, BoardPoint scannerPoint) {
