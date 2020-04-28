@@ -6,14 +6,16 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Getter
 public class TurnAction {
-    private static final String ACT_COMMAND_PREFIX = "ACT,";
+    private static final String ACT_COMMAND_PREFIX = ",ACT";
 
     private final boolean act;
     private final Direction direction;
 
     @Override
     public String toString() {
-        var cmd = act ? ACT_COMMAND_PREFIX : "";
-        return cmd + direction.toString();
+        var cmd = act ? ACT_COMMAND_PREFIX:",";
+        return direction.toString() + cmd;
+       // var cmd = act ? ACT_COMMAND_PREFIX : "";
+       // return cmd + direction.toString();
     }
 }

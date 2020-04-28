@@ -3,10 +3,8 @@ package ru.codebattle.client;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
 
 import ru.codebattle.client.algorithm.AStar;
 import ru.codebattle.client.algorithm.Map;
@@ -19,7 +17,7 @@ public class Main {
 
     static boolean isScan = false;
     static boolean isAchieved = true;
-    static int current = 1;
+    static int current = 5;
     static BoardPoint goal;
     static List<BoardPoint> points = new ArrayList<>();
     public static void main(String[] args) throws URISyntaxException, IOException {
@@ -27,16 +25,17 @@ public class Main {
         client.run(gameBoard -> {
             SonarServiceHelper helper = new SonarServiceHelper(gameBoard);
             if (!isScan){
+                points.add(helper.getFirstNonePoint(new BoardPoint(gameBoard.size()/2,gameBoard.size()/2)));
                 points.add(helper.getFirstNonePoint(new BoardPoint(0,0)));
                 points.add(helper.getFirstNonePoint(new BoardPoint(gameBoard.size(),0)));
-                points.add(helper.getFirstNonePoint(new BoardPoint(0,gameBoard.size())));
-                points.add(helper.getFirstNonePoint(new BoardPoint(gameBoard.size(),gameBoard.size())));
+                points.add(helper.getFirstNonePoint(new BoardPoint(0,gameBoard.size()-1)));
+                points.add(helper.getFirstNonePoint(new BoardPoint(gameBoard.size()-1,gameBoard.size()-1)));
                 isScan = true;
             }
             BoardPoint bot = gameBoard.getBomberman().get(0);
             Map map = new Map(gameBoard.getBarriers(), gameBoard.size(),gameBoard.getMeatchoppers(),bot,gameBoard.getBombs(),gameBoard.getBoardString());
             if (isAchieved){
-                if (current>=1){
+                if (current>=5){
                     current = 0;
                 } else{
                     current++;
@@ -44,18 +43,24 @@ public class Main {
                 goal = points.get(current);
                 isAchieved = false;
             }
-            BoardPoint goal = new BoardPoint(gameBoard.size()-2,gameBoard.size()-2);
+            System.out.println("Goal:" + goal.toString());
+            System.out.println("Bot:" + bot.toString());
             if (goal.equals(bot)){
                 isAchieved = true;
             }
-            System.out.println(goal);
             AStar aStar = new AStar(map, goal, bot);
             Direction step = aStar.getNextStep();
+            System.out.println(step);
+            if (aStar.isStack()){
+                current++;
+                if (current>=5){
+                    current = 0;
+                }
+                goal = points.get(current);
+            }
             boolean act;
             helper.scan(bot);
-            act =  (helper.getMeatChopperPoints().size() > 0 || helper.isDestroyWall(1)) && !helper.isDangerous(3) ;
-            System.out.println(helper.getMeatChopperPoints().size());
-            System.out.println(helper.isDestroyWall(1));
+            act =  (helper.getMeatChopperPoints().size() > 0 || helper.isDestroyWall(1) || helper.getOtherBomberPoints().size()>0) && !helper.isDangerous(2) ;
             return new TurnAction(act,step);
         });
 

@@ -16,7 +16,7 @@ import java.util.List;
  */
 class SonarService {
 
-    public static final int RADIUS_SCANNER = 4;
+    public static final int RADIUS_SCANNER = 3;
     private static final String CHARACTER_POINT_NULL_MESSAGE = "scan(): characterPoint is null";
 
     private GameBoard gameBoard;

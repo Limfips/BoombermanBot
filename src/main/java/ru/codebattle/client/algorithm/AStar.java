@@ -16,6 +16,7 @@ public class AStar {
     private final BoardPoint mainGoal;
     private final BoardPoint botPosition;
     private final Map map;
+    private boolean isStack = false;
 
     public AStar(final Map map, final BoardPoint mainGoal, BoardPoint botPosition) {
         this.map = map;
@@ -30,10 +31,24 @@ public class AStar {
         }
         Node target = getWayToGoal();
         BoardPoint nextStep = buildPath(target);
+        checkIfStack(nextStep);
         return determineDirection(nextStep, botPosition);
     }
 
+    private void checkIfStack(BoardPoint nextStep){
+        if (botPosition.equals(nextStep)){
+            isStack = true;
+        }
+    }
+
+    public boolean isStack(){
+        return this.isStack;
+    }
+
     private boolean checkMainGoal() {
+        if (map.getNodeByLocation(mainGoal) == null){
+            isStack = true;
+        }
         return map.getNodeByLocation(mainGoal) == null || mainGoal.equals(botPosition);
     }
 
@@ -121,6 +136,8 @@ public class AStar {
 
 
     private Direction determineDirection(BoardPoint nextStep, BoardPoint currentBotPosition) {
+        System.out.println(nextStep.toString());
+        System.out.println(currentBotPosition.toString());
         if (nextStep.getX() != currentBotPosition.getX()) {
             if (compareCoordinates(nextStep.getX(), currentBotPosition.getX())) {
                 return Direction.RIGHT;
@@ -129,9 +146,9 @@ public class AStar {
             }
         } else if (compareCoordinates(nextStep.getY(), currentBotPosition.getY())) {
             return Direction.DOWN;
-        } else {
+        } else if (!compareCoordinates(nextStep.getY(),currentBotPosition.getY())){
             return Direction.UP;
-        }
+        } else return Direction.DOWN;
     }
 
     private boolean compareCoordinates(int a1, int a2) {
