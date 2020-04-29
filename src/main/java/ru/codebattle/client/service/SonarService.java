@@ -276,8 +276,10 @@ class SonarService {
     }
 
     private boolean isValidDangerousPoint(BoardPoint point, int i, BoardPoint scannerPoint) {
-        return (point.getX() + i == scannerPoint.getX() || point.getX() - i == scannerPoint.getX()) ||
-                (point.getY() + i == scannerPoint.getY() || point.getY() - i == scannerPoint.getY());
+        return ((point.getX() + i == scannerPoint.getX() || point.getX() - i == scannerPoint.getX())
+                && point.getY() == scannerPoint.getY()) ||
+                ((point.getY() + i == scannerPoint.getY() || point.getY() - i == scannerPoint.getY())
+                && point.getX() == scannerPoint.getX());
     }
 
     //Условие подлинности объекта на координате
