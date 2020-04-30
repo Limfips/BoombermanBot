@@ -10,24 +10,42 @@ import java.util.List;
 
 /**
  * {@link SonarService} - Сервис позволяющий сканировать облость с заданным радиусом
- * @see RADIUS_SCANNER - определяет радиус сканирования
- * @see CHARACTER_POINT_NULL_MESSAGE - кастомное сообщение возникающее в методе scan()
+ * @see RADIUS_SCANNER - определяет радиус сканирования (максимальный - дефолтный)
+ * @see SCANNING_CENTER_POINT_NULL_MESSAGE - сообщение ошибки при передаче нулевого значения в scanningCenterPoint
+ * @see SCANNER_MAP_NULL_MESSAGE - сообщение ошибки при получении значения из пустой карты
+ * @see ELEMENT_TYPE_NULL_MESSAGE - сообщение ошибки при передаче нулевого значения в elementType
+ * @see RADIUS_EXCEPTION_MESSAGE - сообщение ошибки при не валидном значении {@link IllegalArgumentRadiusException}
+ * @version 1.0
  * @author Dudka Leonid RPIS-81
  */
 class SonarService {
 
-    public static final int RADIUS_SCANNER = 3;
-    private static final String CHARACTER_POINT_NULL_MESSAGE = "scan(): characterPoint is null";
+    static final int RADIUS_SCANNER = 4;
+    static final String SCANNING_CENTER_POINT_NULL_MESSAGE = "scanningCenterPoint is null";
+    static final String SCANNER_MAP_NULL_MESSAGE = "scannerMap is null";
+    static final String ELEMENT_TYPE_NULL_MESSAGE = "element type is null";
+    static final String RADIUS_EXCEPTION_MESSAGE = "радиус меньше 1 или больше радиуса, " +
+                                "указанного в статической переменной класса SonarService}";
 
     private GameBoard gameBoard;
-    private BoardPoint characterPoint;
+    private BoardPoint scanningCenterPoint;
     private List<BoardPoint> scannerMap;
+    private int maxRadius;
 
     /**
      * @param gameBoard - игровое поле класса {@link GameBoard}
      */
     SonarService(GameBoard gameBoard) {
+        this(gameBoard, RADIUS_SCANNER);
+    }
+
+    /**
+     * @param gameBoard - игровое поле класса {@link GameBoard}
+     * @param maxRadius - максимальный радиус
+     */
+    public SonarService(GameBoard gameBoard, int maxRadius) {
         this.gameBoard = gameBoard;
+        this.maxRadius = maxRadius;
         this.scannerMap = new ArrayList<>();
     }
 
@@ -35,55 +53,73 @@ class SonarService {
      * Метод, при котором происходит сканирование облости вокруг {@value characterPoint}
      * и последующая запись в {@value scannerMap}
      *
-     * @param characterPoint - перезаписывает {@value characterPoint} и создаёт область {@value scannerMap}
+     * @param scanningCenterPoint - перезаписывает {@value characterPoint} и создаёт область {@value scannerMap}
+     * @throws NullPointerException смотреть {@value SCANNING_CENTER_POINT_NULL_MESSAGE}
      */
-    public void scan(BoardPoint characterPoint) {
-        if (characterPoint == null) throw new NullPointerException(CHARACTER_POINT_NULL_MESSAGE);
-        this.characterPoint = characterPoint;
-        this.scannerMap.clear();
-        scannerMap.add(characterPoint);
-        for (int i = 0; i < RADIUS_SCANNER + 1; i++) {
+    public void scan(BoardPoint scanningCenterPoint) {
+        checkScanningCenterPointIsValid(scanningCenterPoint);
+        this.scanningCenterPoint = scanningCenterPoint;
+        clearScan();
+        scannerMap.add(scanningCenterPoint);
+        for (int i = 0; i < this.maxRadius + 1; i++) {
             if (i == 0) {
-                scannerLineX(RADIUS_SCANNER - i, i);
+                scannerLineX(this.maxRadius - i, i);
             } else {
-                scannerLineX(RADIUS_SCANNER - i, -1 * i);
-                scannerLineX(RADIUS_SCANNER - i, i);
+                scannerLineX(this.maxRadius - i, -1 * i);
+                scannerLineX(this.maxRadius - i, i);
             }
         }
     }
 
     /**
+     * Очищает карту сканирования
+     */
+    public void clearScan() {
+        this.scannerMap.clear();
+    }
+
+    /**
+     * Метод вызывается после метода {@value scan}
      * @return ссылка на {@value scannerMap}
      */
-    public List<BoardPoint> getScannerMap() {
+    public List<BoardPoint> getScannerMap(){
+        checkMap();
         return scannerMap;
     }
 
     /**
+     * Метод вызывается после метода {@value scan}
      * @return точки стен
      */
     public List<BoardPoint> getWallsPoints() {
+        checkMap();
         return findAllElements(BoardElement.WALL);
     }
 
     /**
+     * Метод вызывается после метода {@value scan}
      * @return точки разрушаемых стен
      */
     public List<BoardPoint> getDestroyWallsPoints() {
+        checkMap();
         return findAllElements(BoardElement.DESTROY_WALL);
     }
 
     /**
+     * Метод вызывается после метода {@value scan}
      * @return точки свободных клеток
      */
     public List<BoardPoint> getNonesPoints() {
+        checkMap();
         return findAllElements(BoardElement.NONE);
     }
 
     /**
+     * Метод вызывается после метода {@value scan}
      * @return точки бомб
      */
     public List<BoardPoint> getBombsPoints() {
+        checkMap();
         return findAllElements(
                 BoardElement.BOMB_TIMER_5,
                 BoardElement.BOMB_TIMER_4,
@@ -94,21 +130,26 @@ class SonarService {
     }
 
     /**
+     * Метод вызывается после метода {@value scan}
      * @return точки врагов-бомберов
      */
     public List<BoardPoint> getOtherBomberPoints() {
+        checkMap();
         return findAllElements(BoardElement.OTHER_BOMBERMAN);
     }
 
     /**
+     * Метод вызывается после метода {@value scan}
      * @return точки врагов-митчеперов
      */
     public List<BoardPoint> getMeatChopperPoints() {
+        checkMap();
         return findAllElements(BoardElement.MEAT_CHOPPER);
     }
 
     //Поиск элементов в зоне сканирования
     private List<BoardPoint> findAllElements(BoardElement... elementType) {
+        if (elementType == null) throw new NullPointerException(ELEMENT_TYPE_NULL_MESSAGE);
         List<BoardPoint> result = new ArrayList<>();
         for (BoardPoint pt : scannerMap) {
             for (BoardElement elemType : elementType) {
@@ -120,16 +161,36 @@ class SonarService {
         return result;
     }
 
-    BoardPoint getCharacterPoint() {
-        return characterPoint;
+    /**
+     * @return текущюю точку сканара (последнее изменение)
+     */
+    public BoardPoint getScanningCenterPoint() {
+        return scanningCenterPoint;
     }
 
-    List<BoardPoint> scanDestroyWall(BoardPoint scannerPoint, int radius) {
-        scan(scannerPoint);
+    /**
+     * @return текущий максимальный радиус
+     */
+    public int getMaxRadius() {
+        return maxRadius;
+    }
+
+    /**
+     * Метод ищет все точки разрушаемых стен класса {@link BoardElement}
+     * @param scanningCenterPoint - начальная точка сканирования
+     * @param radius - радиус сканирования
+     * @return список точек
+     * @throws NullPointerException смотреть {@value SCANNING_CENTER_POINT_NULL_MESSAGE}
+     * @throws IllegalArgumentRadiusException смотреть {@value RADIUS_EXCEPTION_MESSAGE}
+     */
+    List<BoardPoint> scanDestroyWall(BoardPoint scanningCenterPoint, int radius) {
+        checkScanningCenterPointIsValid(scanningCenterPoint);
+        checkRadiusValid(radius);
+        scan(scanningCenterPoint);
         List<BoardPoint> scanningPoints = new ArrayList<>();
         for (int i = 1; i < radius + 1; i++) {
             for (BoardPoint point : scannerMap) {
-                if (isValidDangerousPoint(point, i, scannerPoint) && isDestroyWall(point)) {
+                if (isValidDangerousPoint(point, i, scanningCenterPoint) && isDestroyWall(point)) {
                     scanningPoints.add(point);
                 }
             }
@@ -137,12 +198,22 @@ class SonarService {
         return scanningPoints;
     }
 
-    List<BoardPoint> scanDangerous(BoardPoint scannerPoint, int radius) {
-        scan(scannerPoint);
+    /**
+     * Метод ищет все точки бомб класса {@link BoardElement}
+     * @param scanningCenterPoint - начальная точка сканирования
+     * @param radius - радиус сканирования
+     * @return список точек
+     * @throws NullPointerException смотреть {@value SCANNING_CENTER_POINT_NULL_MESSAGE}
+     * @throws IllegalArgumentRadiusException смотреть {@value RADIUS_EXCEPTION_MESSAGE}
+     */
+    List<BoardPoint> scanDangerous(BoardPoint scanningCenterPoint, int radius) {
+        checkScanningCenterPointIsValid(scanningCenterPoint);
+        checkRadiusValid(radius);
+        scan(scanningCenterPoint);
         List<BoardPoint> scanningPoints = new ArrayList<>();
         for (int i = 1; i < radius + 1; i++) {
             for (BoardPoint point : scannerMap) {
-                if (isValidDangerousPoint(point, i, scannerPoint) && isBomb(point)) {
+                if (isValidDangerousPoint(point, i, scanningCenterPoint) && isBomb(point)) {
                     scanningPoints.add(point);
                 }
             }
@@ -150,17 +221,35 @@ class SonarService {
         return scanningPoints;
     }
 
-    List<BoardPoint> scanMeatChopper(BoardPoint scannerPoint, int radius) {
-        scan(scannerPoint);
+    /**
+     * Метод ищет все точки МитЧеперов класса {@link BoardElement}
+     * @param scanningCenterPoint - начальная точка сканирования
+     * @param radius - радиус сканирования
+     * @return список точек
+     * @throws NullPointerException смотреть {@value SCANNING_CENTER_POINT_NULL_MESSAGE}
+     * @throws IllegalArgumentRadiusException смотреть {@value RADIUS_EXCEPTION_MESSAGE}
+     */
+    List<BoardPoint> scanMeatChopper(BoardPoint scanningCenterPoint, int radius) {
+        checkScanningCenterPointIsValid(scanningCenterPoint);
+        checkRadiusValid(radius);
+        scan(scanningCenterPoint);
         List<BoardPoint> scanningPoints = new ArrayList<>();
         for (int i = 1; i < radius + 1; i++) {
             for (BoardPoint point : scannerMap) {
-                if (isValidDangerousPoint(point, i, scannerPoint) && isMeatChopper(point)) {
+                if (isValidDangerousPoint(point, i, scanningCenterPoint) && isMeatChopper(point)) {
                     scanningPoints.add(point);
                 }
             }
         }
         return scanningPoints;
+    }
+
+    void checkRadiusValid(int radius) {
+        if (radius < 1 || radius > this.maxRadius) throw new IllegalArgumentRadiusException(RADIUS_EXCEPTION_MESSAGE);
+    }
+
+    void checkScanningCenterPointIsValid(BoardPoint scanningCenterPoint) {
+        if (scanningCenterPoint == null) throw new NullPointerException(SCANNING_CENTER_POINT_NULL_MESSAGE);
     }
 
     private boolean isMeatChopper(BoardPoint boardPoint) {
@@ -187,8 +276,10 @@ class SonarService {
     }
 
     private boolean isValidDangerousPoint(BoardPoint point, int i, BoardPoint scannerPoint) {
-        return (point.getX() + i == scannerPoint.getX() || point.getX() - i == scannerPoint.getX()) ||
-                (point.getY() + i == scannerPoint.getY() || point.getY() - i == scannerPoint.getY());
+        return ((point.getX() + i == scannerPoint.getX() || point.getX() - i == scannerPoint.getX())
+                && point.getY() == scannerPoint.getY()) ||
+                ((point.getY() + i == scannerPoint.getY() || point.getY() - i == scannerPoint.getY())
+                && point.getX() == scannerPoint.getX());
     }
 
     //Условие подлинности объекта на координате
@@ -204,11 +295,11 @@ class SonarService {
     //Метод создания точек по оси Х
     private void scannerLineX(int width, int height) {
         if (height != 0) {
-            addPoint(new BoardPoint(characterPoint.getX(), characterPoint.getY() + height));
+            addPoint(new BoardPoint(scanningCenterPoint.getX(), scanningCenterPoint.getY() + height));
         }
         for (int i = 1; i < width + 1; i++) {
-            addPoint(new BoardPoint(characterPoint.getX() + -1 * i, characterPoint.getY() + height));
-            addPoint(new BoardPoint(characterPoint.getX() + i, characterPoint.getY() + height));
+            addPoint(new BoardPoint(scanningCenterPoint.getX() + -1 * i, scanningCenterPoint.getY() + height));
+            addPoint(new BoardPoint(scanningCenterPoint.getX() + i, scanningCenterPoint.getY() + height));
         }
     }
 
@@ -222,5 +313,13 @@ class SonarService {
     //Условие (точка не выходит за границы карты)
     private boolean isOutOfBoard(BoardPoint pt) {
         return pt.isOutOfBoard(gameBoard.size());
+    }
+
+    /**
+     * ПРоверяет не пустая ли карта
+     * @throws ScannerMapNullPointerException если карта пустая
+     */
+    private void checkMap() {
+        if (scannerMap.size() < 1) throw new ScannerMapNullPointerException(SCANNER_MAP_NULL_MESSAGE);
     }
 }
