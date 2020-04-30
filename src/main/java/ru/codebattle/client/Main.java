@@ -25,47 +25,67 @@ public class Main {
         client.run(gameBoard -> {
             SonarServiceHelper helper = new SonarServiceHelper(gameBoard);
             if (!isScan){
-                points.add(helper.getFirstNonePoint(new BoardPoint(gameBoard.size()/2,gameBoard.size()/2)));
-                points.add(helper.getFirstNonePoint(new BoardPoint(0,0)));
-                points.add(helper.getFirstNonePoint(new BoardPoint(gameBoard.size(),0)));
-                points.add(helper.getFirstNonePoint(new BoardPoint(0,gameBoard.size()-1)));
-                points.add(helper.getFirstNonePoint(new BoardPoint(gameBoard.size()-1,gameBoard.size()-1)));
-                isScan = true;
+                initMapPoints(gameBoard, helper);
             }
             BoardPoint bot = gameBoard.getBomberman().get(0);
             Map map = new Map(gameBoard.getBarriers(), gameBoard.size(),gameBoard.getMeatchoppers(),bot,gameBoard.getBombs(),gameBoard.getBoardString());
-            if (isAchieved){
-                if (current>=5){
-                    current = 0;
-                } else{
-                    current++;
-                }
-                goal = points.get(current);
-                isAchieved = false;
-            }
-            System.out.println("Goal:" + goal.toString());
-            System.out.println("Bot:" + bot.toString());
+            isAchievedGoal();
             if (goal.equals(bot)){
                 isAchieved = true;
             }
             AStar aStar = new AStar(map, goal, bot);
             Direction step = aStar.getNextStep();
-            System.out.println(step);
-            if (aStar.isStack()){
-                current++;
-                if (current>=5){
-                    current = 0;
-                }
-                goal = points.get(current);
-            }
-            boolean act;
+            printInfrormation(bot, step);
+            checkIfStack(aStar);
+
             helper.scan(bot);
-            act =  (helper.getMeatChopperPoints().size() > 0 || helper.isDestroyWall(1) || helper.getOtherBomberPoints().size()>0) && !helper.isDangerous(2) ;
+            boolean act = decidePlantOrNot(helper);
             return new TurnAction(act,step);
         });
 
         System.in.read();
 
         client.initiateExit();
+    }
+
+    private static void printInfrormation(BoardPoint bot, Direction step) {
+        System.out.println(step);
+        System.out.println("Goal:" + goal.toString());
+        System.out.println("Bot:" + bot.toString());
+    }
+
+    private static void isAchievedGoal() {
+        if (isAchieved){
+            if (current>=5){
+                current = 0;
+            } else{
+                current++;
+            }
+            goal = points.get(current);
+            isAchieved = false;
+        }
+    }
+
+    private static void checkIfStack(AStar aStar) {
+        if (aStar.isStack()){
+            current++;
+            if (current>=5){
+                current = 0;
+            }
+            goal = points.get(current);
+        }
+    }
+
+    private static boolean decidePlantOrNot(SonarServiceHelper helper) {
+        return (helper.getMeatChopperPoints().size() > 0 || helper.isDestroyWall(1) || helper.getOtherBomberPoints().size()>0) && !helper.isDangerous(2);
+    }
+
+    private static void initMapPoints(GameBoard gameBoard, SonarServiceHelper helper) {
+        points.add(helper.getFirstNonePoint(new BoardPoint(gameBoard.size()/2,gameBoard.size()/2)));
+        points.add(helper.getFirstNonePoint(new BoardPoint(0,0)));
+        points.add(helper.getFirstNonePoint(new BoardPoint(gameBoard.size(),0)));
+        points.add(helper.getFirstNonePoint(new BoardPoint(0,gameBoard.size()-1)));
+        points.add(helper.getFirstNonePoint(new BoardPoint(gameBoard.size()-1,gameBoard.size()-1)));
+        isScan = true;
     }
 }

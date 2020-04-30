@@ -25,9 +25,9 @@ public class AStar {
     }
 
     public Direction getNextStep() {
-        if (checkMainGoal()){
+        if (checkMainGoal()) {
             var random = new Random(System.currentTimeMillis());
-           return Direction.values()[random.nextInt(Direction.values().length)];
+            return Direction.values()[random.nextInt(Direction.values().length)];
         }
         Node target = getWayToGoal();
         BoardPoint nextStep = buildPath(target);
@@ -35,21 +35,12 @@ public class AStar {
         return determineDirection(nextStep, botPosition);
     }
 
-    private void checkIfStack(BoardPoint nextStep){
-        if (botPosition.equals(nextStep)){
-            isStack = true;
-        }
-    }
-
-    public boolean isStack(){
-        return this.isStack;
-    }
-
     private boolean checkMainGoal() {
-        if (map.getNodeByLocation(mainGoal) == null){
+        if (map.getNodeByLocation(mainGoal) == null) {
             isStack = true;
+            return true;
         }
-        return map.getNodeByLocation(mainGoal) == null || mainGoal.equals(botPosition);
+        return mainGoal.equals(botPosition);
     }
 
     private Node getWayToGoal() {
@@ -84,6 +75,14 @@ public class AStar {
         return currentNode;
     }
 
+    private boolean comparePriority(Node a1, Node a2) {
+        return a1.getPriority() < a2.getPriority() || a1.getPriority() == a2.getPriority();
+    }
+
+    private boolean compareHeuristicCost(Node a1, Node a2) {
+        return a1.getHeuristicCost() < a2.getHeuristicCost();
+    }
+
     private void addNeighbourNodes(List<Node> openSet, HashSet<Node> closedSet, Node bestNode) {
         List<Node> neighbours = map.getParents(bestNode);
         for (Node neighbourNode : neighbours) {
@@ -103,14 +102,6 @@ public class AStar {
         }
     }
 
-    private boolean comparePriority(Node a1, Node a2) {
-        return a1.getPriority() < a2.getPriority() || a1.getPriority() == a2.getPriority();
-    }
-
-    private boolean compareHeuristicCost(Node a1, Node a2) {
-        return a1.getHeuristicCost() < a2.getHeuristicCost();
-    }
-
     private int computeMovementCost(Node a1, Node a2) {
         return a1.getCurrentCost() + getDistance(a1.getBoardPoint(), a2.getBoardPoint());
     }
@@ -126,7 +117,7 @@ public class AStar {
 
     private BoardPoint buildPath(final Node target) {
         Node currentNode = target;
-        Node prevNode = new Node(botPosition,null);
+        Node prevNode = new Node(botPosition, null);
         while (currentNode != null && !currentNode.getBoardPoint().equals(botPosition)) {
             prevNode = currentNode;
             currentNode = currentNode.getPreviousNode();
@@ -134,6 +125,12 @@ public class AStar {
         return prevNode.getBoardPoint();
     }
 
+
+    private void checkIfStack(BoardPoint nextStep) {
+        if (botPosition.equals(nextStep)) {
+            isStack = true;
+        }
+    }
 
     private Direction determineDirection(BoardPoint nextStep, BoardPoint currentBotPosition) {
         System.out.println(nextStep.toString());
@@ -146,12 +143,16 @@ public class AStar {
             }
         } else if (compareCoordinates(nextStep.getY(), currentBotPosition.getY())) {
             return Direction.DOWN;
-        } else if (!compareCoordinates(nextStep.getY(),currentBotPosition.getY())){
+        } else if (!compareCoordinates(nextStep.getY(), currentBotPosition.getY())) {
             return Direction.UP;
         } else return Direction.DOWN;
     }
 
     private boolean compareCoordinates(int a1, int a2) {
         return a1 > a2;
+    }
+
+    public boolean isStack() {
+        return this.isStack;
     }
 }

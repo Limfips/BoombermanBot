@@ -10,61 +10,18 @@ import java.util.*;
  */
 public class Map {
 
-    private final List<BoardPoint> DIRS = Arrays.asList(
-            new BoardPoint(1, 0),
-            new BoardPoint(0, -1),
-            new BoardPoint(-1, 0),
-            new BoardPoint(0, 1));
-
-    private final List<BoardPoint> bombDIRS = Arrays.asList(
-            new BoardPoint(1, 0),
-            new BoardPoint(2, 0),
-            new BoardPoint(3, 0),
-            new BoardPoint(4, 0),
-            new BoardPoint(-1, 0),
-            new BoardPoint(-2, 0),
-            new BoardPoint(-3, 0),
-            new BoardPoint(-4, 0),
-            new BoardPoint(0, 1),
-            new BoardPoint(0, 2),
-            new BoardPoint(0, 3),
-            new BoardPoint(0,4),
-            new BoardPoint(0, -1),
-            new BoardPoint(0, -2),
-            new BoardPoint(0, -3),
-            new BoardPoint(0, -4));
-
-    //todo В ЗАВИСИМОСТИ ОТ РАССТОЯНИЯ ОТ БОМБЫ И ТАЙМЕРА
-    //todo убрать таймеры
-    //todo если путь не найден, возвращаем рандомное направление
-
     private final int size;
     private List<Node> emptyCells;
-    private List<Node> meatChopperDangerPoints;
-    private List<Node> bombDangerPoints;
-    private String boardString;
+    private final String boardString;
 
     public Map(List<BoardPoint> barriers, int size,List<BoardPoint> meatChoppers,BoardPoint botPosition,List<BoardPoint> bombs,String boardString) {
         this.size = size;
         this.emptyCells = new ArrayList<>();
-        this.meatChopperDangerPoints = new ArrayList<>();
-        this.bombDangerPoints = new ArrayList<>();
         this.boardString = boardString;
         initEmptyCells(barriers);
-        getBombNeighbours(bombs);
-        removeDangerZones(meatChoppers);
-        deleteBombs();
+        deleteDangerNodes(bombs,meatChoppers);
         addBotPosition(botPosition);
         initNeighbours();
-    }
-
-    private void getBombNeighbours(List<BoardPoint> bombs){
-        for (BoardPoint point:bombs){
-            BoardElement element = getElementAt(point);
-            if(element == BoardElement.BOMB_TIMER_1 || element == BoardElement.BOMB_TIMER_2){
-                this.bombDangerPoints.addAll(findNeighboursBomb(point));
-            }
-        }
     }
 
     private void initEmptyCells(List<BoardPoint> barriers) {
@@ -78,37 +35,55 @@ public class Map {
         }
     }
 
-    private BoardElement getElementAt(BoardPoint point) {
-        return BoardElement.valueOf(boardString.charAt(getShiftByPoint(point)));
-    }
-
-    private int getShiftByPoint(BoardPoint point) {
-        return point.getY() * this.size + point.getX();
-    }
-
     private BoardPoint getPointByShift(int shift) {
         return new BoardPoint(shift % size, shift / size);
     }
 
-    private void removeDangerZones(List<BoardPoint> meatChoppers){
-        initMeatChoppersDangerNodes(meatChoppers);
-        deleteDangerPoints();
+    private void deleteDangerNodes(List<BoardPoint> bombs,List<BoardPoint> meatChoppers){
+        List<Node> bombsDangerNodes = initBombNeighbours(bombs);
+        List<Node> meatChopperDangerNodes = initMeatChopperNeighbours(meatChoppers);
+        ArrayList<List<Node>> dangerZones = new ArrayList<>();
+        dangerZones.add(bombsDangerNodes);
+        dangerZones.add(meatChopperDangerNodes);
+        removeCells(dangerZones);
+
     }
 
-    private void deleteBombs(){
-        emptyCells.removeAll(bombDangerPoints);
-        this.bombDangerPoints = null;
-    }
-
-    private void initMeatChoppersDangerNodes(List<BoardPoint> meatChoppers){
-        for (BoardPoint point: meatChoppers){
-            meatChopperDangerPoints.addAll(findNeighbours(point));
+    private List<Node> initBombNeighbours(List<BoardPoint> bombs){
+        List<Node> dangerZones = new ArrayList<>();
+        for (BoardPoint point:bombs){
+            BoardElement element = getElementAt(point);
+            if(element == BoardElement.BOMB_TIMER_1 || element == BoardElement.BOMB_TIMER_2){
+                dangerZones.addAll(findNeighbours(point,DIRS.BOMB_DIRS));
+            }
         }
+        return dangerZones;
     }
 
-    private void deleteDangerPoints(){
-        emptyCells.removeAll(meatChopperDangerPoints);
-        this.meatChopperDangerPoints = null;
+    private List<Node> findNeighbours(BoardPoint currentPoint,List<BoardPoint> DIRS){
+        List<Node> neighbours = new ArrayList<>();
+        for (BoardPoint location:DIRS){
+            BoardPoint neighborBoardPoint = new BoardPoint(currentPoint.getX() + location.getX(), currentPoint.getY() + location.getY());
+            if (!neighborBoardPoint.isOutOfBoard(this.size)) {
+                Node newNode = new Node(neighborBoardPoint, null);
+                neighbours.add(newNode);
+            }
+        }
+        return neighbours;
+    }
+
+    private List<Node> initMeatChopperNeighbours(List<BoardPoint> meatChoppers){
+        List<Node> dangerNeatChopperNodes = new ArrayList<>();
+        for (BoardPoint point: meatChoppers){
+            dangerNeatChopperNodes.addAll(findNeighbours(point, DIRS.STANDARD_DIRS));
+        }
+        return dangerNeatChopperNodes;
+    }
+
+    private void removeCells(ArrayList<List<Node>> danger){
+        for (List<Node> list:danger){
+            this.emptyCells.removeAll(list);
+        }
     }
 
     private void addBotPosition(BoardPoint botPosition) {
@@ -121,33 +96,17 @@ public class Map {
     private void initNeighbours() {
         for (Node current : this.emptyCells) {
             BoardPoint id = current.getBoardPoint();
-            List<Node> neighbours = findNeighbours(id);
+            List<Node> neighbours = findNeighbours(id, DIRS.STANDARD_DIRS);
             current.setNeighbours(neighbours);
         }
     }
 
-    private List<Node> findNeighbours(BoardPoint currentPoint){
-         List<Node> neighbours = new ArrayList<>();
-          for (BoardPoint location:DIRS){
-              BoardPoint neighborBoardPoint = new BoardPoint(currentPoint.getX() + location.getX(), currentPoint.getY() + location.getY());
-              if (!neighborBoardPoint.isOutOfBoard(this.size)) {
-                  Node newNode = new Node(neighborBoardPoint, null);
-                  neighbours.add(newNode);
-              }
-          }
-          return neighbours;
+    private BoardElement getElementAt(BoardPoint point) {
+        return BoardElement.valueOf(boardString.charAt(getShiftByPoint(point)));
     }
 
-    private List<Node> findNeighboursBomb(BoardPoint currentPoint){
-        List<Node> neighbours = new ArrayList<>();
-        for (BoardPoint location:bombDIRS){
-            BoardPoint neighborBoardPoint = new BoardPoint(currentPoint.getX() + location.getX(), currentPoint.getY() + location.getY());
-            if (!neighborBoardPoint.isOutOfBoard(this.size)) {
-                Node newNode = new Node(neighborBoardPoint, null);
-                neighbours.add(newNode);
-            }
-        }
-        return neighbours;
+    private int getShiftByPoint(BoardPoint point) {
+        return point.getY() * this.size + point.getX();
     }
 
     public Node getNodeByLocation(BoardPoint boardPoint) {

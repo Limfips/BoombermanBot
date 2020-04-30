@@ -15,7 +15,5 @@ public class TurnAction {
     public String toString() {
         var cmd = act ? ACT_COMMAND_PREFIX:",";
         return direction.toString() + cmd;
-       // var cmd = act ? ACT_COMMAND_PREFIX : "";
-       // return cmd + direction.toString();
     }
 }
